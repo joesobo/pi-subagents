@@ -603,6 +603,38 @@ describe("async execution utilities", { skip: !available ? "pi packages not avai
 		assert.match(artifact, /Metadata:/);
 	});
 
+	it("isolates a parallel child's artifact-save failure from successful siblings", { skip: !isAsyncAvailable() ? "jiti not available" : undefined }, async () => {
+		mockPi.onCall({ output: "first completed" });
+		mockPi.onCall({ output: "second completed" });
+		const id = `async-artifact-sibling-${Date.now().toString(36)}`;
+		const artifactsDir = path.join(tempDir, ".pi-subagents", "artifacts");
+		fs.mkdirSync(path.join(artifactsDir, `${id}_one_0_output.md`), { recursive: true });
+
+		executeAsyncChain(id, {
+			chain: [{
+				parallel: [
+					{ agent: "one", task: "Complete the first task", acceptance: false },
+					{ agent: "two", task: "Complete the second task", acceptance: false },
+				],
+				concurrency: 2,
+			}],
+			resultMode: "parallel",
+			agents: [makeAgent("one"), makeAgent("two")],
+			ctx: { pi: { events: { emit() {} } }, cwd: tempDir, currentSessionId: "session-artifact-sibling" },
+			artifactConfig: { enabled: true, includeInput: true, includeOutput: true, includeJsonl: false, includeMetadata: true, cleanupDays: 7 },
+			artifactsDir,
+			shareEnabled: false,
+			maxSubagentDepth: 2,
+		});
+
+		const payload = await readAsyncPayload(id);
+		assert.equal(payload.success, false);
+		assert.equal(payload.results.length, 2);
+		assert.match(payload.results[0]?.error ?? "", /Failed to save subagent artifacts/);
+		assert.equal(payload.results[1]?.success, true);
+		assert.equal(payload.results[1]?.output, "second completed");
+	});
+
 	it("background keeps only a bounded UTF-8 stderr tail", { skip: !isAsyncAvailable() ? "jiti not available" : undefined }, async () => {
 		mockPi.onCall({ output: "failed", stderr: `${"x".repeat(MAX_CHILD_STDERR_BYTES + 1024)}终`, exitCode: 1 });
 		const id = `async-stderr-tail-${Date.now().toString(36)}`;

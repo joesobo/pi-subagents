@@ -3,6 +3,9 @@
 ## [Unreleased]
 
 ### Fixed
+- Recreated artifact parent directories at write time and contained artifact-save failures to the affected parallel child instead of terminating the shared async runner.
+- Disabled inferred acceptance enforcement for ordinary read-only tasks while preserving explicit acceptance policies and write-task gates.
+- Removed the bundled reviewer's unconditional reads of optional repository-local `plan.md` and `progress.md` files.
 - Kept pi-intercom stable IDs from leaking into child sessions and used the current intercom runtime ID for unnamed supervisor targets.
 - Improved acceptance policy validation errors and tool-schema guidance for invalid evidence kinds. Thanks to @atimofeev for #672.
 - Tolerated temporary steering inbox scan failures so pending steer requests can be retried on the next poll. Thanks to @hughcars for #670.
