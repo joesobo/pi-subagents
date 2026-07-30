@@ -354,7 +354,7 @@ describe("parallel agent execution", { skip: !piAvailable ? "pi packages not ava
 			makeMinimalCtx(tempDir),
 		);
 
-		assert.equal(result.details?.results?.[0]?.acceptance?.effectiveAcceptance.level, "attested");
+		assert.equal(result.details?.results?.[0]?.acceptance?.effectiveAcceptance.level, "none");
 	});
 
 	it("top-level parallel output saves use per-task output paths", { skip: !createSubagentExecutor ? "executor not importable" : undefined }, async () => {

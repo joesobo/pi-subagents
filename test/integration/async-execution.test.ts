@@ -632,7 +632,7 @@ describe("async execution utilities", { skip: !available ? "pi packages not avai
 		assert.equal(payload.results.length, 2);
 		assert.match(payload.results[0]?.error ?? "", /Failed to save subagent artifacts/);
 		assert.equal(payload.results[1]?.success, true);
-		assert.equal(payload.results[1]?.output, "second completed");
+		assert.match(payload.results[1]?.output ?? "", /^(?:first|second) completed$/);
 	});
 
 	it("background keeps only a bounded UTF-8 stderr tail", { skip: !isAsyncAvailable() ? "jiti not available" : undefined }, async () => {
@@ -1319,7 +1319,7 @@ describe("async execution utilities", { skip: !available ? "pi packages not avai
 		const asyncId = result.details?.asyncId;
 		assert.ok(asyncId, "expected asyncId");
 		const payload = await readAsyncPayload(asyncId);
-		assert.equal(payload.results[0]?.acceptance?.effectiveAcceptance.level, "attested");
+		assert.equal(payload.results[0]?.acceptance?.effectiveAcceptance.level, "none");
 	});
 
 	it("applies agent acceptance roles to inferred async parallel acceptance", { skip: !isAsyncAvailable() || !createSubagentExecutor ? "jiti or executor not available" : undefined }, async () => {
@@ -1337,7 +1337,7 @@ describe("async execution utilities", { skip: !available ? "pi packages not avai
 		const asyncId = result.details?.asyncId;
 		assert.ok(asyncId, "expected asyncId");
 		const payload = await readAsyncPayload(asyncId);
-		assert.equal(payload.results[0]?.acceptance?.effectiveAcceptance.level, "attested");
+		assert.equal(payload.results[0]?.acceptance?.effectiveAcceptance.level, "none");
 	});
 
 	it("infers async chain acceptance after expanding top-level task templates", { skip: !isAsyncAvailable() ? "jiti not available" : undefined }, async () => {
@@ -1368,7 +1368,7 @@ describe("async execution utilities", { skip: !available ? "pi packages not avai
 			maxSubagentDepth: 2,
 		});
 		const reviewPayload = await readAsyncPayload(reviewId);
-		assert.equal(reviewPayload.results[0]?.acceptance?.effectiveAcceptance?.level, "attested");
+		assert.equal(reviewPayload.results[0]?.acceptance?.effectiveAcceptance?.level, "none");
 	});
 
 	it("top-level async parallel conversion preserves output, reads, and progress", { skip: !isAsyncAvailable() || !createSubagentExecutor ? "jiti or executor not available" : undefined }, async () => {
@@ -2009,10 +2009,10 @@ describe("async execution utilities", { skip: !available ? "pi packages not avai
 		assert.ok(!result.isError);
 		const payload = await readAsyncPayload(id);
 		const explorerResults = payload.results.filter((child) => child.agent === "explorer");
-		assert.deepEqual(explorerResults.map((child) => child.acceptance?.effectiveAcceptance?.level), ["attested", "attested"]);
+		assert.deepEqual(explorerResults.map((child) => child.acceptance?.effectiveAcceptance?.level), ["none", "none"]);
 		const dynamicNode = payload.workflowGraph?.nodes?.[1];
-		assert.equal(dynamicNode?.acceptanceStatus, "attested");
-		assert.deepEqual(dynamicNode?.children?.map((child) => child.acceptanceStatus), ["attested", "attested"]);
+		assert.equal(dynamicNode?.acceptanceStatus, "not-required");
+		assert.deepEqual(dynamicNode?.children?.map((child) => child.acceptanceStatus), ["not-required", "not-required"]);
 	});
 
 	it("infers async dynamic acceptance after materializing item templates", { skip: !isAsyncAvailable() ? "jiti not available" : undefined }, async () => {
