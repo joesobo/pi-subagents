@@ -52,6 +52,12 @@ describe("builtin agent overrides", () => {
 		fs.rmSync(tempProject, { recursive: true, force: true });
 	});
 
+	it("bundled reviewer does not read optional project scratch files by default", () => {
+		const reviewer = discoverAgentsAll(tempProject).builtin.find((agent) => agent.name === "reviewer");
+		assert.ok(reviewer);
+		assert.equal(reviewer.defaultReads, undefined);
+	});
+
 	it("bundled builtin agents inherit the default model", () => {
 		const builtins = discoverAgentsAll(tempProject).builtin;
 		assert.ok(builtins.length > 0);

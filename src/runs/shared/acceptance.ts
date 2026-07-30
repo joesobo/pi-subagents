@@ -130,10 +130,10 @@ function inferLevel(input: {
 	if (readOnlyAgent || readOnlyTask) {
 		reasons.push(input.acceptanceRole === "read-only" && !readOnlyTask ? "declared read-only acceptance role" : readOnlyAgent ? "read-only/reviewer-style agent" : "read-only task wording");
 		return {
-			level: "attested",
+			level: "none",
 			reasons,
-			criteria: ["Return concrete findings with file paths and severity when applicable"],
-			evidence: ["review-findings", "residual-risks"],
+			criteria: [],
+			evidence: [],
 		};
 	}
 	reasons.push("default lightweight attestation");

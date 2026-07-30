@@ -742,10 +742,10 @@ describe("chain execution — sequential", { skip: !available ? "pi packages not
 
 		assert.ok(!result.isError, `chain should succeed: ${JSON.stringify(result.content)}`);
 		const explorerResults = result.details.results.filter((child) => child.agent === "explorer");
-		assert.deepEqual(explorerResults.map((child) => child.acceptance?.effectiveAcceptance.level), ["attested", "attested"]);
+		assert.deepEqual(explorerResults.map((child) => child.acceptance?.effectiveAcceptance.level), ["none", "none"]);
 		const dynamicNode = result.details.workflowGraph?.nodes[1];
-		assert.equal(dynamicNode?.acceptanceStatus, "attested");
-		assert.deepEqual(dynamicNode?.children?.map((child) => child.acceptanceStatus), ["attested", "attested"]);
+		assert.equal(dynamicNode?.acceptanceStatus, "not-required");
+		assert.deepEqual(dynamicNode?.children?.map((child) => child.acceptanceStatus), ["not-required", "not-required"]);
 	});
 
 	it("infers foreground dynamic acceptance after materializing item templates", async () => {
